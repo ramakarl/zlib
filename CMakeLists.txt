@@ -1,3 +1,31 @@
+
+# ZLib
+# CMakelist modified for packaging 
+
+macro (POST_COPY SRC_TARGET SRC_PATH SRC_MATCH DEST_DIR)  
+  # Make sure dir exists
+  MAKE_DIRECTORY ( "${DEST_DIR}" )
+  
+  # Locate all files matching pattern
+  message ( STATUS "Packaging for /include: ${SRC_PATH}/${SRC_MATCH} -> ${DEST_DIR}" )    
+  if ( "${SRC_MATCH}" MATCHES "(.*)\\*(.*)" )  
+     # wildcard given, find all matching files (MUST EXIST NOW, AT CMAKE TIME, BEFORE BUILD)
+     FILE ( GLOB src_list ABSOLUTE "${SRC_PATH}/${SRC_MATCH}" )
+  else ()
+     # specific file, just copy it
+     SET ( src_list "${SRC_PATH}/${SRC_MATCH}")
+  endif ()
+  
+  # Add post-build copy
+  foreach ( src_file ${src_list})
+    ADD_CUSTOM_COMMAND ( TARGET ${SRC_TARGET}
+        POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${src_file} ${DEST_DIR}
+    )
+  endforeach () 
+endmacro ()
+
+
 cmake_minimum_required(VERSION 2.4.4)
 set(CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS ON)
 
@@ -187,6 +215,14 @@ add_library(zlib SHARED ${ZLIB_SRCS} ${ZLIB_ASMS} ${ZLIB_DLL_SRCS} ${ZLIB_PUBLIC
 add_library(zlibstatic STATIC ${ZLIB_SRCS} ${ZLIB_ASMS} ${ZLIB_PUBLIC_HDRS} ${ZLIB_PRIVATE_HDRS})
 set_target_properties(zlib PROPERTIES DEFINE_SYMBOL ZLIB_DLL)
 set_target_properties(zlib PROPERTIES SOVERSION 1)
+
+# Packaging lib and includes
+POST_COPY ( zlib ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR} zlib.dll ${CMAKE_BINARY_DIR}/lib )
+POST_COPY ( zlib ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR} zlib.lib ${CMAKE_BINARY_DIR}/lib )
+POST_COPY ( zlibstatic ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR} zlibstatic.lib ${CMAKE_BINARY_DIR}/lib )
+POST_COPY ( zlib ${CMAKE_CURRENT_SOURCE_DIR} *.h "${CMAKE_BINARY_DIR}/include" )
+POST_COPY ( zlib ${CMAKE_CURRENT_BINARY_DIR} zconf.h "${CMAKE_BINARY_DIR}/include" )
+
 
 if(NOT CYGWIN)
     # This property causes shared libraries on Linux to have the full version
