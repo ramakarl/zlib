@@ -1,3 +1,11 @@
+
+WINDOWS 64-bit BUILD for ZLIB
+
+Differences between this and the main repro:
+- Zlib build targets for x64 Debug and Release
+- Post-build packaging step creates /include and /lib folders for use by other packages
+- Will be found automatically by win_OpenEXR and win_OpenVDB, when used as described there
+
 ZLIB DATA COMPRESSION LIBRARY
 
 zlib 1.2.8 is a general purpose data compression library.  All the code is
