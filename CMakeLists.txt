@@ -217,9 +217,9 @@ set_target_properties(zlib PROPERTIES DEFINE_SYMBOL ZLIB_DLL)
 set_target_properties(zlib PROPERTIES SOVERSION 1)
 
 # Packaging lib and includes
-POST_COPY ( zlib ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR} zlib.dll ${CMAKE_BINARY_DIR}/lib )
-POST_COPY ( zlib ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR} zlib.lib ${CMAKE_BINARY_DIR}/lib )
-POST_COPY ( zlibstatic ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR} zlibstatic.lib ${CMAKE_BINARY_DIR}/lib )
+POST_COPY ( zlib ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR} zlib$<$<CONFIG:Debug>:d>.dll ${CMAKE_BINARY_DIR}/lib )
+POST_COPY ( zlib ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR} zlib$<$<CONFIG:Debug>:d>.lib ${CMAKE_BINARY_DIR}/lib )
+POST_COPY ( zlibstatic ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR} zlibstatic$<$<CONFIG:Debug>:d>.lib ${CMAKE_BINARY_DIR}/lib )
 POST_COPY ( zlib ${CMAKE_CURRENT_SOURCE_DIR} *.h "${CMAKE_BINARY_DIR}/include" )
 POST_COPY ( zlib ${CMAKE_CURRENT_BINARY_DIR} zconf.h "${CMAKE_BINARY_DIR}/include" )
 
@@ -283,3 +283,9 @@ if(HAVE_OFF64_T)
     target_link_libraries(minigzip64 zlib)
     set_target_properties(minigzip64 PROPERTIES COMPILE_FLAGS "-D_FILE_OFFSET_BITS=64")
 endif()
+
+#============================================================================
+# Contrib
+#============================================================================
+
+add_subdirectory(contrib/minizip minizip)
